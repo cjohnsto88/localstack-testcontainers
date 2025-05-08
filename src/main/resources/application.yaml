@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: localstack-testcontainers
+  kafka:
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      group-id: test-consumer-group
+
+s3:
+  bucket: some-bucket

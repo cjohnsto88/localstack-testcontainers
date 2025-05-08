@@ -1,5 +1,6 @@
 package com.craig.playground.localstack.testcontainers;
 
+import com.craig.playground.localstack.testcontainers.config.properties.S3Properties;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
@@ -12,9 +13,6 @@ import java.io.IOException;
 @TestConfiguration(proxyBeanMethods = false)
 class TestcontainersConfiguration {
 
-    public static final String BUCKET_NAME = "my-bucket";
-    public static final String LOCALSTACK_NETWORK_ALIAS = BUCKET_NAME + "." + "localstack";
-
     @Bean
     @ServiceConnection
     KafkaContainer kafkaContainer() {
@@ -23,13 +21,13 @@ class TestcontainersConfiguration {
 
     @Bean
     @ServiceConnection
-    LocalStackContainer localStackContainer() throws IOException, InterruptedException {
+    LocalStackContainer localStackContainer(S3Properties s3Properties) throws IOException, InterruptedException {
         LocalStackContainer localStackContainer = new LocalStackContainer(DockerImageName.parse("localstack/localstack:latest"))
                 .withServices(LocalStackContainer.Service.S3)
-                .withNetworkAliases(LOCALSTACK_NETWORK_ALIAS);
+                .withNetworkAliases(s3Properties.getBucket() +".localstack");
 
         localStackContainer.start();
-        localStackContainer.execInContainer("awslocal", "s3", "mb", "s3://" + BUCKET_NAME);
+        localStackContainer.execInContainer("awslocal", "s3", "mb", "s3://" + s3Properties.getBucket());
 
         return localStackContainer;
     }
